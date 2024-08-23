@@ -19,17 +19,19 @@ namespace Computer_Repairs.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = _context.Users.ToList().Select(s => s.ToUserDto());
+            var users = await _context.Users.ToListAsync();
+                
+            var usersDto = users.Select(s => s.ToUserDto());
 
-            return Ok(users);
+            return Ok(usersDto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public async Task<IActionResult> GetUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
             if(user == null)
             {
                 return NotFound();
@@ -38,20 +40,20 @@ namespace Computer_Repairs.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateUser([FromBody] CreateUserDto userDto)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
         {
             var userModel = userDto.ToUserFromCreateDto();
-            _context.Users.Add(userModel);
-            _context.SaveChanges();
+            await _context.Users.AddAsync(userModel);
+            await _context.SaveChangesAsync();
 
             // When the User is created "GetUser" Controller is called with the Id paramater
             return CreatedAtAction(nameof(GetUser), new {id = userModel.Id}, userModel.ToUserDto());
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] UpdateUserDto userDto)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto userDto)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
             if(user == null)
             {
                 return NotFound("No user found with the given id");
@@ -61,21 +63,21 @@ namespace Computer_Repairs.Controllers
             user.Role = userDto.Role;
             user.Salary = userDto.Salary;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(user.ToUserDto());
 
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
             if(user == null)
             {
                 return NotFound("No user found with the given id");
             }
             _context.Users.Remove(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
