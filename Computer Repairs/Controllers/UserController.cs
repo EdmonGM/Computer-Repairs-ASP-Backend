@@ -1,27 +1,22 @@
 ﻿using Computer_Repairs.Data;
 using Computer_Repairs.Dtos.User;
+using Computer_Repairs.Interfaces;
 using Computer_Repairs.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Computer_Repairs.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(IUserRepo userRepo) : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
-        public UserController(ApplicationDBContext context)
-        {
-            _context = context;
-        }
+        private readonly  IUserRepo _userRepo = userRepo;
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _userRepo.GetAllAsync();
                 
             var usersDto = users.Select(s => s.ToUserDto());
 
@@ -31,7 +26,7 @@ namespace Computer_Repairs.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepo.GetByIdAsync(id);
             if(user == null)
             {
                 return NotFound();
@@ -43,8 +38,7 @@ namespace Computer_Repairs.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
         {
             var userModel = userDto.ToUserFromCreateDto();
-            await _context.Users.AddAsync(userModel);
-            await _context.SaveChangesAsync();
+            await _userRepo.CreateAsync(userModel);
 
             // When the User is created "GetUser" Controller is called with the Id paramater
             return CreatedAtAction(nameof(GetUser), new {id = userModel.Id}, userModel.ToUserDto());
@@ -53,17 +47,12 @@ namespace Computer_Repairs.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto userDto)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepo.UpdateAsync(id, userDto);
             if(user == null)
             {
                 return NotFound("No user found with the given id");
             }
-            user.Name = userDto.Name;
-            user.Username = userDto.Username;
-            user.Role = userDto.Role;
-            user.Salary = userDto.Salary;
-
-            await _context.SaveChangesAsync();
+           
             return Ok(user.ToUserDto());
 
         }
@@ -71,13 +60,12 @@ namespace Computer_Repairs.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepo.DeleteAsync(id);
             if(user == null)
             {
                 return NotFound("No user found with the given id");
             }
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
