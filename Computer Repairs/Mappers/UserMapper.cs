@@ -13,7 +13,8 @@ namespace Computer_Repairs.Mappers
                 Name = userModel.Name,
                 Username = userModel.Username,
                 Role = userModel.Role,
-                Salary = userModel.Salary
+                Salary = userModel.Salary,
+                Tickets = userModel.Tickets.Select(t => t.ToTicketDto()).ToList(),
             };
         }
         public static User ToUserFromCreateDto(this CreateUserDto userDto)
