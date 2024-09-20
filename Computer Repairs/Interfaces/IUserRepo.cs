@@ -10,5 +10,6 @@ namespace Computer_Repairs.Interfaces
         Task<User> CreateAsync(User user);
         Task<User> UpdateAsync(int id, UpdateUserDto userDto);
         Task<User> DeleteAsync(int id);
+        Task<bool> UserExsits(int id);
     }
 }

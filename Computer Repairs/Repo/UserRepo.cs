@@ -52,5 +52,10 @@ namespace Computer_Repairs.Repo
             await _context.SaveChangesAsync();
             return user;
         }
+
+        public Task<bool> UserExsits(int id)
+        {
+            return _context.Users.AnyAsync(u => u.Id == id);
+        }
     }
 }

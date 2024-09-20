@@ -18,5 +18,15 @@ namespace Computer_Repairs.Mappers
                 Status = ticketModel.Status,
             };
         }
+        public static Ticket ToTicketFromCreateDto(this CreateTicketDto ticketDto, int userId)
+        {
+            return new Ticket
+            {
+                UserId = userId,
+                Title = ticketDto.Title,
+                Description = ticketDto.Description,
+                Status = ticketDto.Status,
+            };
+        }
     }
 }

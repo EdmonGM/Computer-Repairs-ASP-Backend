@@ -16,5 +16,22 @@ namespace Computer_Repairs.Repo
         {
             return await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id);
         }
+        public async Task<Ticket> CreateAsync(Ticket ticket)
+        {
+            await _context.Tickets.AddAsync(ticket);
+            await _context.SaveChangesAsync();
+            return ticket;
+        }
+        public async Task<Ticket> DeleteAsync(int id)
+        {
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == id);
+            if (ticket == null)
+            {
+                return null;
+            }
+            _context.Remove(ticket);
+            await _context.SaveChangesAsync();
+            return ticket;
+        }
     }
 }
